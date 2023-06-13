@@ -4,8 +4,10 @@ from loader import dp, db, bot
 from data.config import ADMINS
 from utils.extra_datas import make_title
 from aiogram.dispatcher import FSMContext
-from states.reg_user import RegUser
+from states.reg_user import RegUser, SignIn
 from keyboards.default.main_mark import get_phone_markup, main_markup
+from keyboards.default.sign import log_markup
+from keyboards.default.main_mark import main_markup_signin
 from keyboards.inline.main_inlayn import get_info_reg_user
 from aiogram.types import ReplyKeyboardRemove
 
@@ -35,6 +37,7 @@ async def bot_start(message: types.Message, state: FSMContext):
             full_name=full_name,
             username=message.from_user.username,
         )
+        
         # ADMINGA xabar beramiz
         count = await db.count_users()
         msg = f"[{make_title(user['full_name'])}](tg://user?id={user['telegram_id']}) bazaga qo'shildi\.\nBazada {count} ta foydalanuvchi bor\."
@@ -44,11 +47,24 @@ async def bot_start(message: types.Message, state: FSMContext):
     await message.answer(f"Xush kelibsiz, {make_title(full_name)}\!", parse_mode=types.ParseMode.MARKDOWN_V2)
     user = await db.select_user(telegram_id=int(message.from_user.id))
     reg_user = await db.select_reg_user(user_id=int(user['id']))
+    signin_user = await db.select_signin_user(user_id=int(user['id']))
     if reg_user:
         await message.answer("Sizni qiziqtirgan bo'limni tanlang:", reply_markup=main_markup)
+    elif signin_user:
+        await message.answer("Siz muvaffaqiyatli tizimga kirdingiz!", reply_markup=main_markup_signin)
     else:
+        await message.answer("Siz hali tizimga kirmagansiz!", reply_markup=log_markup)
+        
+
+@dp.message_handler(text=["📋 Ro'yxatdan o'tish", "🔐 Kirish"])
+async def sig(message: types.Message, state: FSMContext):
+    if message.text == "📋 Ro'yxatdan o'tish":
         await message.answer("<b>Iltimos, telefon raqamini kiriting:</b>\n\nYoki  \"<b>📞 Telefon raqamini yuborish</b>\"  tugmasini bosing:\n\n<i>Masalan: +998912345678</i>", reply_markup=get_phone_markup)
         await RegUser.phone_number.set()
+    else:
+        await message.answer("Tizimga kirish uchun iltimos <b>telefon raqamingizni kiriting</b>:", reply_markup=ReplyKeyboardRemove())
+        await SignIn.phone_number.set()
+    
 
 @dp.message_handler(content_types=['contact'], state=RegUser.phone_number)
 @dp.message_handler(state=RegUser.phone_number)
@@ -56,9 +72,13 @@ async def get_phone_number(message: types.Message, state: FSMContext):
     if message.text:
         phone_number = message.text
         if phone_number[:4] == "+998" and 9 < len(phone_number) <= 15:
-            await state.update_data({"phone_numer":phone_number})
-            await message.answer("Iltimos, <b>xavfsiz parol</b> o'ylab to'ping:", reply_markup=ReplyKeyboardRemove())
-            await RegUser.password.set()
+            check_number = await db.select_reg_user(phone_numer=str(phone_number))
+            if not check_number:
+                await state.update_data({"phone_numer":phone_number})
+                await message.answer("Iltimos, <b>xavfsiz parol</b> o'ylab to'ping:", reply_markup=ReplyKeyboardRemove())
+                await RegUser.password.set()
+            else:
+                await message.answer("Siz kiritgan raqam tizimda mavjud!")
         else:
             await message.answer("Noto'g'ri telefon raqam kiritgansiz\n\nIltimos, haqiqiy <b>telefon raqamingizni</b> kiriting\n\n<i>Masalan: +998912345678</i>")
     elif message.contact:

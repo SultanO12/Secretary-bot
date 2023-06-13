@@ -4,3 +4,8 @@ class RegUser(StatesGroup):
   phone_number = State()
   password = State()
   check = State()
+
+class SignIn(StatesGroup):
+  phone_number = State()
+  password = State()
+  check = State()

@@ -56,12 +56,33 @@ class Database:
         sql = """CREATE TABLE IF NOT EXISTS Reg_Users (
         id SERIAL PRIMARY KEY,
         user_id INTEGER NOT NULL,
-        phone_number VARCHAR(15) NOT NULL,
+        phone_number VARCHAR(15) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL UNIQUE
         );
         """
 
         await self.execute(sql, execute=True)
+
+    async def create_table_signin_users(self):
+        sql = """CREATE TABLE IF NOT EXISTS Signin_Users (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        reg_user_id INTEGER NOT NULL,
+        phone_number VARCHAR(15) NOT NULL,
+        password VARCHAR(255) NOT NULL
+        );
+        """
+
+        await self.execute(sql, execute=True)
+    
+    async def select_signin_user(self, **kwargs):
+        sql = "SELECT * FROM Signin_Users WHERE "
+        sql, parameters = self.format_args(sql, parameters=kwargs)
+        return await self.execute(sql, *parameters, fetchrow=True)
+
+    async def add_signin_user(self, user_id, reg_user_id, phone_number, password):
+        sql = "INSERT INTO Signin_Users (user_id, reg_user_id, phone_number, password) VALUES($1, $2, $3, $4) returning *"
+        return await self.execute(sql, user_id, reg_user_id, phone_number, password, fetchrow=True)
 
     async def add_reg_user(self, user_id, phone_number, password):
         sql = "INSERT INTO Reg_Users (user_id, phone_number, password) VALUES($1, $2, $3) returning *"
@@ -71,6 +92,10 @@ class Database:
         sql = "SELECT * FROM Reg_Users WHERE "
         sql, parameters = self.format_args(sql, parameters=kwargs)
         return await self.execute(sql, *parameters, fetchrow=True)
+    
+    async def select_info_reg_user(self, phone_number, password):
+        sql = "SELECT * FROM Reg_Users WHERE phone_number=$1 AND password=$2"
+        return await self.execute(sql, phone_number, password, fetch=True)
 
     @staticmethod
     def format_args(sql, parameters: dict):
