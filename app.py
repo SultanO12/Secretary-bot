@@ -12,6 +12,9 @@ async def on_startup(dispatcher):
     # await db.drop_users()
     await db.create_table_users()
 
+    # User password create table:
+    await db.create_table_reg_users()
+
     # Birlamchi komandalar (/start va /help)
     await set_default_commands(dispatcher)
 
@@ -20,4 +23,4 @@ async def on_startup(dispatcher):
 
 
 if __name__ == '__main__':
-    executor.start_polling(dp, on_startup=on_startup)
+    executor.start_polling(dp, on_startup=on_startup, skip_updates=True)
