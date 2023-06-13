@@ -18,6 +18,9 @@ async def on_startup(dispatcher):
     # Sign In user create table:
     await db.create_table_signin_users()
 
+    # Malubotlar table:
+    await db.create_table_malumotlar()
+
     # Birlamchi komandalar (/start va /help)
     await set_default_commands(dispatcher)
 

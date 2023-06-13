@@ -44,7 +44,8 @@ async def bot_start(message: types.Message, state: FSMContext):
         await bot.send_message(chat_id=ADMINS[0], text=msg, parse_mode=types.ParseMode.MARKDOWN_V2)
     else:
         await bot.send_message(chat_id=ADMINS[0], text=f"[{make_title(full_name)}](tg://user?id={message.from_user.id}) bazaga oldin qo'shilgan", disable_web_page_preview=True, parse_mode=types.ParseMode.MARKDOWN_V2)
-    await message.answer(f"Xush kelibsiz, {make_title(full_name)}\!", parse_mode=types.ParseMode.MARKDOWN_V2)
+    if message.text != "🏠 Asosiy menyu":
+        await message.answer(f"Xush kelibsiz, {make_title(full_name)}\!", parse_mode=types.ParseMode.MARKDOWN_V2)
     user = await db.select_user(telegram_id=int(message.from_user.id))
     reg_user = await db.select_reg_user(user_id=int(user['id']))
     signin_user = await db.select_signin_user(user_id=int(user['id']))
@@ -72,7 +73,7 @@ async def get_phone_number(message: types.Message, state: FSMContext):
     if message.text:
         phone_number = message.text
         if phone_number[:4] == "+998" and 9 < len(phone_number) <= 15:
-            check_number = await db.select_reg_user(phone_numer=str(phone_number))
+            check_number = await db.select_reg_user(phone_number=str(phone_number))
             if not check_number:
                 await state.update_data({"phone_numer":phone_number})
                 await message.answer("Iltimos, <b>xavfsiz parol</b> o'ylab to'ping:", reply_markup=ReplyKeyboardRemove())

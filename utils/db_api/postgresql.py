@@ -75,6 +75,28 @@ class Database:
 
         await self.execute(sql, execute=True)
     
+    async def create_table_malumotlar(self):
+        sql = """CREATE TABLE IF NOT EXISTS Malumotlar (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        reg_user_id INTEGER NOT NULL,
+        malumot_text TEXT NULL,
+        img text NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+        );
+        """
+
+        await self.execute(sql, execute=True)
+
+    async def add_malumot(self, user_id, reg_user_id, malumot_text=None, img=None):
+        sql = "INSERT INTO Malumotlar (user_id, reg_user_id, malumot_text, img) VALUES($1, $2, $3, $4) returning *"
+        return await self.execute(sql, user_id, reg_user_id, malumot_text, img, fetchrow=True)
+    
+    async def select_malumotlar(self, **kwargs):
+        sql = "SELECT * FROM Malumotlar WHERE "
+        sql, parameters = self.format_args(sql, parameters=kwargs)
+        return await self.execute(sql, *parameters, fetch=True)
+    
     async def select_signin_user(self, **kwargs):
         sql = "SELECT * FROM Signin_Users WHERE "
         sql, parameters = self.format_args(sql, parameters=kwargs)
