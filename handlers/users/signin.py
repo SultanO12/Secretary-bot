@@ -42,6 +42,7 @@ async def get_info_password(message: types.Message, state: FSMContext):
             await state.finish()
             await message.answer("Login yoki parol noto'g'ri kiritilgan ❌", reply_markup=log_markup)
     else:
+        await state.finish()
         await message.answer("Login yoki parol noto'g'ri kiritilgan ❌", reply_markup=log_markup)
 
 
