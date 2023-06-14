@@ -87,6 +87,15 @@ class Database:
         """
 
         await self.execute(sql, execute=True)
+    
+    async def select_info_del(self, reg_user_id, created_at):
+        sql = "SELECT * FROM Malumotlar WHERE reg_user_id=$1 AND created_at=$2"
+        return await self.execute(sql, reg_user_id, created_at, fetchrow=True)
+    
+    async def delete_malumot(self, reg_user_id, created_at):
+        sql = "DELETE FROM Malumotlar WHERE reg_user_id=$1 AND created_at=$2"
+        return await self.execute(sql, reg_user_id, created_at, execute=True)
+
 
     async def add_malumot(self, user_id, reg_user_id, malumot_text=None, img=None):
         sql = "INSERT INTO Malumotlar (user_id, reg_user_id, malumot_text, img) VALUES($1, $2, $3, $4) returning *"
