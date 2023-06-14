@@ -10,9 +10,12 @@ from keyboards.default.sign import log_markup
 from keyboards.default.main_mark import main_markup_signin
 from keyboards.inline.main_inlayn import get_info_reg_user
 from aiogram.types import ReplyKeyboardRemove
+from data.config import CHANNELS
+from keyboards.inline.subscription import check_button
+from filters import IsPrivate
 
 @dp.message_handler(text="🏠 Asosiy menyu", state='*')
-@dp.message_handler(CommandStart(), state='*')
+@dp.message_handler(IsPrivate(), CommandStart(), state='*')
 async def bot_start(message: types.Message, state: FSMContext):
     await state.finish()
     """
@@ -44,17 +47,22 @@ async def bot_start(message: types.Message, state: FSMContext):
         await bot.send_message(chat_id=ADMINS[0], text=msg, parse_mode=types.ParseMode.MARKDOWN_V2)
     else:
         await bot.send_message(chat_id=ADMINS[0], text=f"[{make_title(full_name)}](tg://user?id={message.from_user.id}) bazaga oldin qo'shilgan", disable_web_page_preview=True, parse_mode=types.ParseMode.MARKDOWN_V2)
-    if message.text != "🏠 Asosiy menyu":
-        await message.answer(f"Xush kelibsiz, {make_title(full_name)}\!", parse_mode=types.ParseMode.MARKDOWN_V2)
-    user = await db.select_user(telegram_id=int(message.from_user.id))
-    reg_user = await db.select_reg_user(user_id=int(user['id']))
-    signin_user = await db.select_signin_user(user_id=int(user['id']))
-    if reg_user:
-        await message.answer("Sizni qiziqtirgan bo'limni tanlang:", reply_markup=main_markup)
-    elif signin_user:
-        await message.answer("Siz muvaffaqiyatli tizimga kirdingiz!", reply_markup=main_markup_signin)
-    else:
-        await message.answer("Siz hali tizimga kirmagansiz!", reply_markup=log_markup)
+    
+    # 
+    channels_format = str()
+    for channel in CHANNELS:
+        chat = await bot.get_chat(channel)
+        invite_link = await chat.export_invite_link()
+        # logging.info(invite_link)
+        channels_format += f"➡️ <a href='{invite_link}'><b>{chat.title}</b></a>\n"
+
+    await message.answer(f"Quyidagi kanallarga obuna bo'ling: \n\n"
+                         f"{channels_format}",
+                         reply_markup=check_button,
+                         disable_web_page_preview=True)
+    # 
+
+    
         
 
 @dp.message_handler(text=["📋 Ro'yxatdan o'tish", "🔐 Kirish"])
