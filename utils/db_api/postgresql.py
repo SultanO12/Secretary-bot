@@ -75,6 +75,10 @@ class Database:
 
         await self.execute(sql, execute=True)
     
+    async def delete_sign_user(self, user_id):
+        sql = "DELETE FROM Signin_Users WHERE user_id=$1"
+        return await self.execute(sql, user_id, execute=True)
+    
     async def create_table_malumotlar(self):
         sql = """CREATE TABLE IF NOT EXISTS Malumotlar (
         id SERIAL PRIMARY KEY,
@@ -126,7 +130,7 @@ class Database:
     
     async def select_info_reg_user(self, phone_number, password):
         sql = "SELECT * FROM Reg_Users WHERE phone_number=$1 AND password=$2"
-        return await self.execute(sql, phone_number, password, fetch=True)
+        return await self.execute(sql, phone_number, password, fetchrow=True)
 
     @staticmethod
     def format_args(sql, parameters: dict):

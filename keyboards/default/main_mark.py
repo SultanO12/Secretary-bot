@@ -10,3 +10,4 @@ get_phone_markup.add(KeyboardButton("📞 Telefon raqamini yuborish" ,request_co
 
 main_markup_signin = ReplyKeyboardMarkup(resize_keyboard=True)
 main_markup_signin.add(KeyboardButton("🗂 Ma'lumotni o'qish"))
+main_markup_signin.row("🔝 Tizimdan chiqish")

@@ -36,7 +36,7 @@ async def back_3(message: types.Message, state: FSMContext):
       await message.answer("Siz hali tizimga kirmagansiz!", reply_markup=log_markup)
 
 @dp.message_handler(text='⬅️ Orqaga')
-@dp.message_handler(text="🗂 Ma'lumotlar")
+@dp.message_handler(text="🗂 Ma'lumotlar", state='*')
 async def do_malumotlar(message: types.Message, state: FSMContext):
     await state.finish()
     user = await db.select_user(telegram_id=int(message.from_user.id))

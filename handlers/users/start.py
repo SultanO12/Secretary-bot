@@ -59,13 +59,22 @@ async def bot_start(message: types.Message, state: FSMContext):
 
 @dp.message_handler(text=["📋 Ro'yxatdan o'tish", "🔐 Kirish"])
 async def sig(message: types.Message, state: FSMContext):
-    if message.text == "📋 Ro'yxatdan o'tish":
-        await message.answer("<b>Iltimos, telefon raqamini kiriting:</b>\n\nYoki  \"<b>📞 Telefon raqamini yuborish</b>\"  tugmasini bosing:\n\n<i>Masalan: +998912345678</i>", reply_markup=get_phone_markup)
-        await RegUser.phone_number.set()
+    user = await db.select_user(telegram_id=int(message.from_user.id))
+    check_sign = await db.select_signin_user(user_id=int(user['id']))
+    check_reg_user = await db.select_reg_user(user_id=int(user['id']))
+    if check_sign:
+        await message.answer("<b>Siz tizimdasiz!</b>")
+    elif check_reg_user:
+        await message.answer("<b>Siz tizimdasiz!</b>")
     else:
-        await message.answer("Tizimga kirish uchun iltimos <b>telefon raqamingizni kiriting</b>:", reply_markup=ReplyKeyboardRemove())
-        await SignIn.phone_number.set()
-    
+        if message.text == "📋 Ro'yxatdan o'tish":
+            await message.answer("<b>Iltimos, telefon raqamini kiriting:</b>\n\nYoki  \"<b>📞 Telefon raqamini yuborish</b>\"  tugmasini bosing:\n\n<i>Masalan: +998912345678</i>", reply_markup=get_phone_markup)
+            await RegUser.phone_number.set()
+        else:
+            
+            await message.answer("Tizimga kirish uchun iltimos <b>telefon raqamingizni kiriting</b>:", reply_markup=ReplyKeyboardRemove())
+            await SignIn.phone_number.set()
+        
 
 @dp.message_handler(content_types=['contact'], state=RegUser.phone_number)
 @dp.message_handler(state=RegUser.phone_number)
