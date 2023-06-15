@@ -88,6 +88,16 @@ async def bot_start(message: types.Message, state: FSMContext):
                 await message.answer("Siz muvaffaqiyatli tizimga kirdingiz!", reply_markup=main_markup_signin)
             else:
                 await message.answer("Siz hali tizimga kirmagansiz!", reply_markup=log_markup)
+    else:
+            user = await db.select_user(telegram_id=int(message.from_user.id))
+            reg_user = await db.select_reg_user(user_id=int(user['id']))
+            signin_user = await db.select_signin_user(user_id=int(user['id']))
+            if reg_user:
+                await message.answer("Sizni qiziqtirgan bo'limni tanlang:", reply_markup=main_markup)
+            elif signin_user:
+                await message.answer("Siz muvaffaqiyatli tizimga kirdingiz!", reply_markup=main_markup_signin)
+            else:
+                await message.answer("Siz hali tizimga kirmagansiz!", reply_markup=log_markup)
     
         
 
