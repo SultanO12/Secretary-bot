@@ -18,7 +18,8 @@ malumotlar_markup.add()
 malumotlar_markup.add(main)
 
 add_markup = ReplyKeyboardMarkup(resize_keyboard=True)
-add_markup.add(KeyboardButton("➕📝Matn qo'shish"), KeyboardButton("➕🖼 Rasm qo'shish"))
+add_markup.add(KeyboardButton("➕📝 Matn qo'shish"), KeyboardButton("➕🖼 Rasm qo'shish"))
+add_markup.row("➕📹 Video qo'shish")
 add_markup.add(main, back)
 
 main_back_markup = ReplyKeyboardMarkup(resize_keyboard=True)

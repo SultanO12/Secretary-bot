@@ -86,6 +86,7 @@ class Database:
         reg_user_id INTEGER NOT NULL,
         malumot_text TEXT NULL,
         img text NULL,
+        video text NULL,
         created_at TIMESTAMP DEFAULT NOW()
         );
         """
@@ -101,9 +102,9 @@ class Database:
         return await self.execute(sql, reg_user_id, created_at, execute=True)
 
 
-    async def add_malumot(self, user_id, reg_user_id, malumot_text=None, img=None):
-        sql = "INSERT INTO Malumotlar (user_id, reg_user_id, malumot_text, img) VALUES($1, $2, $3, $4) returning *"
-        return await self.execute(sql, user_id, reg_user_id, malumot_text, img, fetchrow=True)
+    async def add_malumot(self, user_id, reg_user_id, malumot_text=None, img=None, video=None):
+        sql = "INSERT INTO Malumotlar (user_id, reg_user_id, malumot_text, img, video) VALUES($1, $2, $3, $4, $5) returning *"
+        return await self.execute(sql, user_id, reg_user_id, malumot_text, img, video, fetchrow=True)
     
     async def select_malumotlar(self, **kwargs):
         sql = "SELECT * FROM Malumotlar WHERE "

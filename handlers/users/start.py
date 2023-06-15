@@ -14,6 +14,7 @@ from data.config import CHANNELS
 from keyboards.inline.subscription import check_button
 from filters import IsPrivate
 
+
 @dp.message_handler(text="🏠 Asosiy menyu", state='*')
 @dp.message_handler(IsPrivate(), CommandStart(), state='*')
 async def bot_start(message: types.Message, state: FSMContext):

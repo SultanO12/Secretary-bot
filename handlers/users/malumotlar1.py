@@ -23,6 +23,11 @@ async def back_3(message: types.Message, state: FSMContext):
       malumotlar = await db.select_malumotlar(reg_user_id=int(check_reg['id']))
       if malumotlar:
         await message.answer("<b>Ma'lumotlar:</b>", reply_markup=del_malumot)
+
+        for malumot in malumotlar:
+           if malumot['video']:
+              await message.answer_video(malumot['video'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+
         for malumot in malumotlar:
           if malumot['img']: 
             await message.answer_photo(malumot['img'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
@@ -56,6 +61,11 @@ async def do_get_my_info(message: types.Message, state: FSMContext):
       malumotlar = await db.select_malumotlar(reg_user_id=int(check_reg['id']))
       if malumotlar:
         await message.answer("<b>Ma'lumotlar:</b>", reply_markup=del_malumot)
+
+        for malumot in malumotlar:
+           if malumot['video']:
+              await message.answer_video(malumot['video'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+
         for malumot in malumotlar:
           if malumot['img']: 
             await message.answer_photo(malumot['img'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
@@ -99,12 +109,17 @@ async def get_data_del_info(message: types.Message, state: FSMContext):
       if info['created_at'] == date_object:
          text = info['malumot_text']
          img = info['img']
+         video = info['video']
          if text:
             await message.answer(f"<b>Malumot:</b> {info['malumot_text']}\n\n<b><i>Ma'lumot yozilgan sana:</i></b> {str(info['created_at'])[:19]}")
             await message.answer("Tanlangan ma'lumotlarni o'chirib tashlaysizmi?", reply_markup=check_inline)
             await state.update_data({"date_object":date_object})
          elif img:
             await message.answer_photo(photo=info['img'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(info['created_at'])[:19]}")
+            await message.answer("Tanlangan ma'lumotlarni o'chirib tashlaysizmi?", reply_markup=check_inline)
+            await state.update_data({"date_object":date_object})
+         elif video:
+            await message.answer_video(video=info['video'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(info['created_at'])[:19]}")
             await message.answer("Tanlangan ma'lumotlarni o'chirib tashlaysizmi?", reply_markup=check_inline)
             await state.update_data({"date_object":date_object})
          await Delinfo.check.set()
@@ -137,6 +152,12 @@ async def add_img(message: types.Message, state: FSMContext):
    await message.answer("Qo'shmoqchi bo'lgan rasimingizni yuboring:", reply_markup=main_back_markup)
    await AddMalumot.img.set()
 
+@dp.message_handler(text="➕📹 Video qo'shish", state='*')
+async def add_img(message: types.Message, state: FSMContext):
+   await state.finish()
+   await message.answer("Qo'shmoqchi bo'lgan videoni yuboring:", reply_markup=main_back_markup)
+   await AddMalumot.video.set()
+
 @dp.message_handler(state=AddMalumot.text)
 async def get_text(message: types.Message, state: FSMContext):
    user = await db.select_user(telegram_id=int(message.from_user.id))
@@ -151,6 +172,18 @@ async def get_img(message: types.Message, state: FSMContext):
    user = await db.select_user(telegram_id=int(message.from_user.id))
    check_reg = await db.select_reg_user(user_id=int(user['id']))
    await db.add_malumot(user_id=int(user['id']), reg_user_id=int(check_reg['id']), img=message.photo[-1]['file_id'])
+   await message.answer("<b>Rasm muvaffaqiyatli yozildi!</b> ✅")
+   await state.finish()
+   await message.answer("Qo'shmoqchi bo'lgan narsani tanlang:", reply_markup=add_markup)
+
+@dp.message_handler(content_types=['video'], state=AddMalumot.video)
+async def get_img(message: types.Message, state: FSMContext):
+   user = await db.select_user(telegram_id=int(message.from_user.id))
+   check_reg = await db.select_reg_user(user_id=int(user['id']))
+   video_message = message.video
+    # получаем ID видео и выводим его в терминале
+   video_id = video_message.file_id
+   await db.add_malumot(user_id=int(user['id']), reg_user_id=int(check_reg['id']), video=video_id)
    await message.answer("<b>Rasm muvaffaqiyatli yozildi!</b> ✅")
    await state.finish()
    await message.answer("Qo'shmoqchi bo'lgan narsani tanlang:", reply_markup=add_markup)
