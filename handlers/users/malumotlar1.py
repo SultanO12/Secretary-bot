@@ -124,7 +124,7 @@ async def get_data_del_info(message: types.Message, state: FSMContext):
             await state.update_data({"date_object":date_object})
          await Delinfo.check.set()
 
-@dp.callback_query_handler(text=['yes', 'no'] , state=Delinfo.check)
+@dp.callback_query_handler(text=['yes', 'no'], state=Delinfo.check)
 async def get_check_del_info(call: types.CallbackQuery, state: FSMContext):
    if call.data == 'yes':
       user = await db.select_user(telegram_id=int(call.from_user.id))
@@ -136,11 +136,12 @@ async def get_check_del_info(call: types.CallbackQuery, state: FSMContext):
    else:
       await call.message.answer("<b>Ma'lumot o'chirilmadi!</b>", reply_markup=malumotlar_markup)
       await state.finish()
+
 @dp.message_handler(text="➕ Ma'lumot qo'shish")
 async def add_malumot(message: types.Message, state: FSMContext):
    await message.answer("Qo'shmoqchi bo'lgan narsani tanlang:", reply_markup=add_markup)
 
-@dp.message_handler(text="➕📝Matn qo'shish", state='*')
+@dp.message_handler(text="➕📝 Matn qo'shish", state='*')
 async def add_text(message: types.Message, state: FSMContext):
    await state.finish()
    await message.answer("Qo'shmoqchi bo'lgan matnni yuboring:", reply_markup=main_back_markup)
@@ -178,13 +179,15 @@ async def get_img(message: types.Message, state: FSMContext):
 
 @dp.message_handler(content_types=['video'], state=AddMalumot.video)
 async def get_img(message: types.Message, state: FSMContext):
-   user = await db.select_user(telegram_id=int(message.from_user.id))
-   check_reg = await db.select_reg_user(user_id=int(user['id']))
-   video_message = message.video
+    user = await db.select_user(telegram_id=int(message.from_user.id))
+    check_reg = await db.select_reg_user(user_id=int(user['id']))
+    video_message = message.video.file_id
     # получаем ID видео и выводим его в терминале
-   video_id = video_message.file_id
-   await db.add_malumot(user_id=int(user['id']), reg_user_id=int(check_reg['id']), video=video_id)
-   await message.answer("<b>Rasm muvaffaqiyatli yozildi!</b> ✅")
-   await state.finish()
-   await message.answer("Qo'shmoqchi bo'lgan narsani tanlang:", reply_markup=add_markup)
+    video_id = video_message
+    await db.add_malumot(user_id=int(user['id']), reg_user_id=int(check_reg['id']), video=video_id)
+
+    await message.answer("<b>Rasm muvaffaqiyatli yozildi!</b> ✅")
+    await state.finish()
+    await message.answer("Qo'shmoqchi bo'lgan narsani tanlang:", reply_markup=add_markup)
+
 

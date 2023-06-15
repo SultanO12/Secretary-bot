@@ -59,6 +59,11 @@ async def send_malumot(message: types.Message, state: FSMContext):
                     malumotlar = await db.select_malumotlar(reg_user_id=int(check_info_reg['id']))
                     if malumotlar:
                         await message.answer("<b>Ma'lumotlar:</b>")
+
+                        for malumot in malumotlar:
+                            if malumot['video']:
+                                await message.answer_video(malumot['video'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+
                         for malumot in malumotlar:
                             if malumot['img']: 
                                 await message.answer_photo(malumot['img'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
