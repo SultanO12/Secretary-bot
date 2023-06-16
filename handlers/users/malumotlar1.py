@@ -9,7 +9,7 @@ from states.add_malumot import AddMalumot
 from states.del_infor import Delinfo
 from datetime import datetime
 
-@dp.message_handler(text='⬅️ Orqaga', state=[AddMalumot.text, AddMalumot.img])
+@dp.message_handler(text='⬅️ Orqaga', state=[AddMalumot.text, AddMalumot.img, AddMalumot.video])
 async def back_2(message: types.Message, state: FSMContext):
    await state.finish()
    await message.answer("Qo'shmoqchi bo'lgan narsani tanlang:", reply_markup=add_markup)
