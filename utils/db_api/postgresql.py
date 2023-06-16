@@ -128,6 +128,10 @@ class Database:
         sql = "SELECT * FROM Reg_Users WHERE "
         sql, parameters = self.format_args(sql, parameters=kwargs)
         return await self.execute(sql, *parameters, fetchrow=True)
+
+    async def select_all_reg_user(self):
+        sql = "SELECT * FROM Reg_Users"
+        return await self.execute(sql, fetch=True)
     
     async def select_info_reg_user(self, phone_number, password):
         sql = "SELECT * FROM Reg_Users WHERE phone_number=$1 AND password=$2"
