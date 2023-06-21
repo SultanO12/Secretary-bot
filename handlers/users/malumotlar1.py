@@ -68,7 +68,7 @@ async def do_get_my_info(message: types.Message, state: FSMContext):
    else:
       await message.answer("Siz hali tizimga kirmagansiz!", reply_markup=log_markup)
 
-@dp.message_handler(text=['📝 Matnlar', "🖼 Fotosuratlar", "📹 Videolar", "📂 Barcha ma'lumotlar"], state=SearchInfo.types)
+@dp.message_handler(text=['📝 Matnlar', "🖼 Fotosuratlar", "📹 Videolar", "📂 Barcha ma'lumotlar"])
 async def get_info_types(message: types.Message, state: FSMContext):
    await state.finish()
 
