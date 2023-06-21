@@ -62,7 +62,7 @@ async def do_get_my_info(message: types.Message, state: FSMContext):
       malumotlar = await db.select_malumotlar(reg_user_id=int(check_reg['id']))
       if malumotlar:
         await message.answer("<b>Ma'lumotlar:</b>", reply_markup=get_info_markup)
-        await SearchInfo.types.set()
+        
       else:
          await message.answer("Sizda hali saqlangan ma'lumotlar yo'q!")
    else:
