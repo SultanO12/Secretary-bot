@@ -3,6 +3,8 @@ from aiogram import types
 from data.config import ADMINS
 from loader import dp, db, bot
 import pandas as pd
+from aiogram.dispatcher import FSMContext
+from states.send_message import SendMessage
 
 @dp.message_handler(text="/allusers", user_id=ADMINS)
 async def get_all_users(message: types.Message):
@@ -27,13 +29,37 @@ async def get_all_users(message: types.Message):
 
 @dp.message_handler(text="/reklama", user_id=ADMINS)
 async def send_ad_to_all(message: types.Message):
-    users = await db.select_all_users()
-    for user in users:
-        user_id = user[-1]
-        await bot.send_message(chat_id=user_id, text="@LifeC0der kanaliga obuna bo'ling!")
-        await asyncio.sleep(0.05)
+        users = await db.select_all_users()
+        for user in users:
+            user_id = user[-1]
+            try:
+                await bot.send_message(chat_id=user_id, text="@LifeC0der kanaliga obuna bo'ling!")
+                await asyncio.sleep(0.05)
+            except:
+                await message.answer(f"User: {user} - blocked")
 
+    
 @dp.message_handler(text="/cleandb", user_id=ADMINS)
 async def get_all_users(message: types.Message):
     await db.delete_users()
     await message.answer("Baza tozalandi!")
+
+@dp.message_handler(text="/send_message", user_id=ADMINS)
+async def get_message(message: types.Message, state: FSMContext):
+    await state.finish()
+
+    await message.answer("Введите сообщение:")
+    await SendMessage.text.set()
+
+@dp.message_handler(state=SendMessage.text)
+async def send(message: types.Message, state: FSMContext):
+        users = await db.select_all_users()
+        for user in users:
+            user_id = user[-1]
+            try:
+                await bot.send_message(chat_id=user_id, text=str(message.text))
+                await asyncio.sleep(0.05)
+            except:
+                await message.answer(f"User: {user} - blocked")
+        await message.answer("Successfully!")
+        await state.finish()
