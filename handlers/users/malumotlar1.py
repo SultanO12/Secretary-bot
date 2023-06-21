@@ -186,10 +186,26 @@ async def get_check_del_info(call: types.CallbackQuery, state: FSMContext):
       check_reg = await db.select_reg_user(user_id=int(user['id']))
       data = await state.get_data()
       await db.delete_malumot(reg_user_id=int(check_reg['id']), created_at=data['date_object'])
-      await call.message.answer("<b>Ma'lumot muvaffaqiyatli o'chirildi! ✅</b>", reply_markup=malumotlar_markup)
+      await call.message.answer("<b>Ma'lumot muvaffaqiyatli o'chirildi! ✅</b>")
+      user = await db.select_user(telegram_id=int(call.from_user.id))
+      check_reg = await db.select_reg_user(user_id=int(user['id']))
+      if check_reg:
+         malumotlar = await db.select_malumotlar(reg_user_id=int(check_reg['id']))
+         if malumotlar:
+            await call.message.answer("<b>Sizning ma'lumotlaringiz:</b>", reply_markup=get_info_markup)
+         else:
+            await call.message.answer("Siz Ma'lumotlar bo'limidasiz:", reply_markup=malumotlar_markup)
       await state.finish()
    else:
-      await call.message.answer("<b>Ma'lumot o'chirilmadi!</b>", reply_markup=malumotlar_markup)
+      await call.message.answer("<b>Ma'lumot o'chirilmadi!</b>")
+      user = await db.select_user(telegram_id=int(call.from_user.id))
+      check_reg = await db.select_reg_user(user_id=int(user['id']))
+      if check_reg:
+         malumotlar = await db.select_malumotlar(reg_user_id=int(check_reg['id']))
+         if malumotlar:
+            await call.message.answer("<b>Sizning ma'lumotlaringiz:</b>", reply_markup=get_info_markup)
+         else:
+            await call.message.answer("Siz Ma'lumotlar bo'limidasiz:", reply_markup=malumotlar_markup)
       await state.finish()
 
 @dp.message_handler(text="➕ Ma'lumot qo'shish")
