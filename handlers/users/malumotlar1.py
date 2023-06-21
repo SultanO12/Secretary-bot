@@ -2,11 +2,12 @@ from loader import db, dp, bot
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import ReplyKeyboardRemove
-from keyboards.default.malumotalar_mark import malumotlar_markup, add_markup, main_back_markup, del_malumot, del_create_markups
+from keyboards.default.malumotalar_mark import malumotlar_markup, add_markup, main_back_markup, del_malumot, del_create_markups, get_info_markup
 from keyboards.default.sign import log_markup
 from keyboards.inline.delinfo import check_inline
 from states.add_malumot import AddMalumot
 from states.del_infor import Delinfo
+from states.send_info import SearchInfo
 from datetime import datetime
 
 @dp.message_handler(text='⬅️ Orqaga', state=[AddMalumot.text, AddMalumot.img, AddMalumot.video])
@@ -60,21 +61,55 @@ async def do_get_my_info(message: types.Message, state: FSMContext):
    if check_reg:
       malumotlar = await db.select_malumotlar(reg_user_id=int(check_reg['id']))
       if malumotlar:
-        await message.answer("<b>Ma'lumotlar:</b>", reply_markup=del_malumot)
-
-        for malumot in malumotlar:
-           if malumot['video']:
-              await message.answer_video(malumot['video'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
-
-        for malumot in malumotlar:
-          if malumot['img']: 
-            await message.answer_photo(malumot['img'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
-        
-        for malumot in malumotlar:
-           if malumot['malumot_text']:
-            await message.answer(f"{malumot['malumot_text']}\n\n<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+        await message.answer("<b>Ma'lumotlar:</b>", reply_markup=get_info_markup)
+        await SearchInfo.types.set()
       else:
          await message.answer("Sizda hali saqlangan ma'lumotlar yo'q!")
+   else:
+      await message.answer("Siz hali tizimga kirmagansiz!", reply_markup=log_markup)
+
+@dp.message_handler(text=['📝 Matnlar', "🖼 Fotosuratlar", "📹 Videolar", "📂 Barcha ma'lumotlar"], state=SearchInfo.types)
+async def get_info_types(message: types.Message, state: FSMContext):
+   await state.finish()
+
+   user = await db.select_user(telegram_id=int(message.from_user.id))
+   check_reg = await db.select_reg_user(user_id=int(user['id']))
+   if check_reg:
+      malumotlar = await db.select_malumotlar(reg_user_id=int(check_reg['id']))
+      if message.text == "📂 Barcha ma'lumotlar":
+         await message.answer("<b>Ma'lumotlar:</b>", reply_markup=del_malumot)
+         for malumot in malumotlar:
+            if malumot['video']:
+               await message.answer_video(malumot['video'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+
+         for malumot in malumotlar:
+            if malumot['img']: 
+               await message.answer_photo(malumot['img'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+         
+         for malumot in malumotlar:
+            if malumot['malumot_text']:
+               await message.answer(f"{malumot['malumot_text']}\n\n<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+      elif message.text == "📝 Matnlar":
+          await message.answer("<b>Ma'lumotlar:</b>")
+          for malumot in malumotlar:
+            if malumot['malumot_text']:
+               await message.answer(f"{malumot['malumot_text']}\n\n<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+            else:
+               await message.answer("Sizda matnli ma'lumotlar yo'q!")
+      elif message.text == "🖼 Fotosuratlar":
+         await message.answer("<b>Ma'lumotlar:</b>")
+         for malumot in malumotlar:
+            if malumot['img']: 
+               await message.answer_photo(malumot['img'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+            else:
+               await message.answer("Sizda fotosuratlar yo'q!")
+      elif message.text == "📹 Videolar":
+         await message.answer("<b>Ma'lumotlar:</b>")
+         for malumot in malumotlar:
+            if malumot['video']:
+               await message.answer_video(malumot['video'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+            else:
+               await message.answer("Sizda video ma'lumotlar yo'q!")
    else:
       await message.answer("Siz hali tizimga kirmagansiz!", reply_markup=log_markup)
 

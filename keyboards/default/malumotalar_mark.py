@@ -14,8 +14,14 @@ async def del_create_markups(reg_user_id):
 
 malumotlar_markup = ReplyKeyboardMarkup(resize_keyboard=True)
 malumotlar_markup.add(KeyboardButton("📂 Sizning ma'lumotlaringiz"), KeyboardButton("➕ Ma'lumot qo'shish"))
-malumotlar_markup.add()
 malumotlar_markup.add(main)
+
+get_info_markup = ReplyKeyboardMarkup(resize_keyboard=True)
+get_info_markup.add("📝 Matnlar")
+get_info_markup.add(KeyboardButton("🖼 Fotosuratlar"), KeyboardButton("📹 Videolar"))
+get_info_markup.add(KeyboardButton("📂 Barcha ma'lumotlar"))
+get_info_markup.add(main, back)
+
 
 add_markup = ReplyKeyboardMarkup(resize_keyboard=True)
 add_markup.add(KeyboardButton("➕📝 Matn qo'shish"), KeyboardButton("➕🖼 Rasm qo'shish"))
