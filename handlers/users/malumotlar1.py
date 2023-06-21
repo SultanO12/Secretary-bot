@@ -77,7 +77,7 @@ async def get_info_types(message: types.Message, state: FSMContext):
    if check_reg:
       malumotlar = await db.select_malumotlar(reg_user_id=int(check_reg['id']))
       if message.text == "📂 Barcha ma'lumotlar":
-         await message.answer("<b>Ma'lumotlar:</b>", reply_markup=del_malumot)
+         await message.answer("<b>Ma'lumotlar:</b>")
          for malumot in malumotlar:
             if malumot['video']:
                await message.answer_video(malumot['video'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
@@ -92,7 +92,7 @@ async def get_info_types(message: types.Message, state: FSMContext):
       elif message.text == "📝 Matnlar":
           await message.answer("<b>Ma'lumotlar:</b>")
           for malumot in malumotlar:
-            if malumot['malumot_text']:
+            if malumot['malumot_text']:   
                await message.answer(f"{malumot['malumot_text']}\n\n<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
             else:
                await message.answer("Sizda matnli ma'lumotlar yo'q!")
@@ -121,6 +121,19 @@ async def del_info(message: types.Message, state: FSMContext):
    if check_reg:
       malumotlar = await db.select_malumotlar(reg_user_id=int(check_reg['id']))
       if malumotlar:
+         await message.answer("<b>Ma'lumotlar:</b>")
+         for malumot in malumotlar:
+            if malumot['video']:
+               await message.answer_video(malumot['video'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+
+         for malumot in malumotlar:
+            if malumot['img']: 
+               await message.answer_photo(malumot['img'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+         
+         for malumot in malumotlar:
+            if malumot['malumot_text']:
+               await message.answer(f"{malumot['malumot_text']}\n\n<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+
          markup = await del_create_markups(check_reg['id'])
          await message.answer("O'chirish uchun ma'lumotnig sanasini tanlang:", reply_markup=markup)
          await state.update_data({"reg_id":check_reg['id']})

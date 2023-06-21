@@ -19,7 +19,7 @@ malumotlar_markup.add(main)
 get_info_markup = ReplyKeyboardMarkup(resize_keyboard=True)
 get_info_markup.add("📝 Matnlar")
 get_info_markup.add(KeyboardButton("🖼 Fotosuratlar"), KeyboardButton("📹 Videolar"))
-get_info_markup.add(KeyboardButton("📂 Barcha ma'lumotlar"))
+get_info_markup.add(KeyboardButton("📂 Barcha ma'lumotlar"), KeyboardButton("🗑 Ma'lumot o'chirish"))
 get_info_markup.add(main, back)
 
 
