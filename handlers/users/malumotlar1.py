@@ -23,19 +23,8 @@ async def back_3(message: types.Message, state: FSMContext):
    if check_reg:
       malumotlar = await db.select_malumotlar(reg_user_id=int(check_reg['id']))
       if malumotlar:
-        await message.answer("<b>Ma'lumotlar:</b>", reply_markup=del_malumot)
-
-        for malumot in malumotlar:
-           if malumot['video']:
-              await message.answer_video(malumot['video'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
-
-        for malumot in malumotlar:
-          if malumot['img']: 
-            await message.answer_photo(malumot['img'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+        await message.answer("<b>Ma'lumotlar:</b>", reply_markup=get_info_markup)
         
-        for malumot in malumotlar:
-           if malumot['malumot_text']:
-            await message.answer(f"{malumot['malumot_text']}\n\n<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
       else:
          await message.answer("Sizda hali saqlangan ma'lumotlar yo'q!")
    else:
@@ -91,24 +80,41 @@ async def get_info_types(message: types.Message, state: FSMContext):
                await message.answer(f"{malumot['malumot_text']}\n\n<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
       elif message.text == "📝 Matnlar":
           await message.answer("<b>Ma'lumotlar:</b>")
+          texts = []
           for malumot in malumotlar:
-            if malumot['malumot_text']:   
-               await message.answer(f"{malumot['malumot_text']}\n\n<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
-            else:
+            if malumot['malumot_text']: 
+               texts.append(malumot['malumot_text'])
+
+          if texts:
+             for text in texts:
+               await message.answer(f"{text}\n\n<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+          else:
                await message.answer("Sizda matnli ma'lumotlar yo'q!")
+
       elif message.text == "🖼 Fotosuratlar":
          await message.answer("<b>Ma'lumotlar:</b>")
+         photos = []
          for malumot in malumotlar:
             if malumot['img']: 
-               await message.answer_photo(malumot['img'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
-            else:
+               photos.append(malumot['img'])
+               
+         if photos:
+            for photo in photos:
+               await message.answer_photo(photo, caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+         else:
                await message.answer("Sizda fotosuratlar yo'q!")
+
       elif message.text == "📹 Videolar":
          await message.answer("<b>Ma'lumotlar:</b>")
+         videos = []
          for malumot in malumotlar:
             if malumot['video']:
-               await message.answer_video(malumot['video'], caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
-            else:
+               videos.append(malumot['video'])
+               
+         if videos:
+            for video in videos:
+               await message.answer_video(video, caption=f"<b><i>Ma'lumot yozilgan sana:</i></b> {str(malumot['created_at'])[:19]}")
+         else:
                await message.answer("Sizda video ma'lumotlar yo'q!")
    else:
       await message.answer("Siz hali tizimga kirmagansiz!", reply_markup=log_markup)
@@ -174,6 +180,7 @@ async def get_data_del_info(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(text=['yes', 'no'], state=Delinfo.check)
 async def get_check_del_info(call: types.CallbackQuery, state: FSMContext):
+   await call.message.delete()
    if call.data == 'yes':
       user = await db.select_user(telegram_id=int(call.from_user.id))
       check_reg = await db.select_reg_user(user_id=int(user['id']))
