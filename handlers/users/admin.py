@@ -36,7 +36,7 @@ async def send_ad_to_all(message: types.Message):
                 await bot.send_message(chat_id=user_id, text="@LifeC0der kanaliga obuna bo'ling!")
                 await asyncio.sleep(0.05)
             except:
-                await message.answer(f"User: {user} - blocked")
+                await bot.send_message(chat_id=message.from_user.id, text=f"User: {user} - blocked")
 
     
 @dp.message_handler(text="/cleandb", user_id=ADMINS)
@@ -60,6 +60,6 @@ async def send(message: types.Message, state: FSMContext):
                 await bot.send_message(chat_id=user_id, text=str(message.text))
                 await asyncio.sleep(0.05)
             except:
-                await message.answer(f"User: {user} - blocked")
-        await message.answer("Successfully!")
+                await bot.send_message(chat_id=message.from_user.id, text=f"User: {user} - blocked")
+        await bot.send_message(chat_id=message.from_user.id, text="Successfully!")
         await state.finish()
