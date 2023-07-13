@@ -92,6 +92,10 @@ class Database:
         """
 
         await self.execute(sql, execute=True)
+
+    async def select_all_infor(self):
+        sql = "SELECT * FROM Malumotlar"
+        return await self.execute(sql, fetch=True)
     
     async def select_info_del(self, reg_user_id, created_at):
         sql = "SELECT * FROM Malumotlar WHERE reg_user_id=$1 AND created_at=$2"
