@@ -1,2 +1,2 @@
 # Aiogram-Template
-Pythonda Aiogramdan foydalanib bot yaratish uchun shablon
+This bot will help you save information and get the information provided at any time
